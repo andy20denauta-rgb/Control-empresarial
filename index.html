@@ -8,6 +8,12 @@
 <link rel="icon" href="icon.svg">
 <link rel="stylesheet" href="styles.css">
 <title>Control Empresarial</title>
+<script>
+(function(){
+  var theme=localStorage.getItem("control_empresarial_theme")||"light";
+  document.documentElement.dataset.theme=theme;
+})();
+</script>
 </head>
 
 <body>
@@ -35,15 +41,12 @@
 <button id="quick" class="primary">+ Registrar venta</button>
 </header>
 
-
 <section id="dashboard">
-
 <div class="hero">
 <small>Patrimonio operativo</small>
 <strong id="balance">0 CUP</strong>
 <span>Capital recuperado: <b id="recovered">0 CUP</b></span>
 </div>
-
 <div class="kpis">
 <article>Capital invertido<b id="invested">0 CUP</b></article>
 <article>Ventas<b id="sales">0 CUP</b></article>
@@ -52,358 +55,139 @@
 <article>Gastos<b id="expenses">0 CUP</b></article>
 <article>Ganancia neta<b id="net">0 CUP</b></article>
 </div>
-
 <div class="cols">
-
-<div class="card">
-<h2>Recuperación de capital</h2>
-<div id="recovery"></div>
+<div class="card"><h2>Recuperación de capital</h2><div id="recovery"></div></div>
+<div class="card"><h2>Ventas recientes</h2><div id="recent"></div></div>
 </div>
-
-<div class="card">
-<h2>Ventas recientes</h2>
-<div id="recent"></div>
-</div>
-
-</div>
-
-<div class="card">
-<h2>Ventas últimos 14 días</h2>
-<div id="chart" class="chart"></div>
-</div>
-
+<div class="card"><h2>Ventas últimos 14 días</h2><div id="chart" class="chart"></div></div>
 </section>
-
 
 <section id="investments" class="hidden">
-
 <div class="card">
-
 <h2>Nueva inversión / pedido</h2>
-
 <form id="if">
-
 <div class="grid">
-
-<label>
-Referencia
-<input id="iname" required>
-</label>
-
-<label>
-Fecha
-<input id="idate" type="date" required>
-</label>
-
-<label>
-Moneda
-<select id="icur">
-<option>USD</option>
-<option>EUR</option>
-<option>CUP</option>
-</select>
-</label>
-
-<label>
-Mercancía
-<input id="imerch" type="number" min="0" step=".01" required>
-</label>
-
-<label>
-Envío
-<input id="iship" type="number" min="0" step=".01" value="0">
-</label>
-
-<label>
-Prorrateo
-<select id="ialloc">
-<option value="value">Por valor</option>
-<option value="qty">Por unidades</option>
-</select>
-</label>
-
+<label>Referencia<input id="iname" required></label>
+<label>Fecha<input id="idate" type="date" required></label>
+<label>Moneda<select id="icur"><option>USD</option><option>EUR</option><option>CUP</option></select></label>
+<label>Mercancía<input id="imerch" type="number" min="0" step=".01" required></label>
+<label>Envío<input id="iship" type="number" min="0" step=".01" value="0"></label>
+<label>Prorrateo<select id="ialloc"><option value="value">Por valor</option><option value="qty">Por unidades</option></select></label>
 </div>
-
 <button class="primary">Guardar inversión</button>
-
 </form>
-
-<p class="hint">
-El envío forma parte del costo real y se reparte entre los productos.
-</p>
-
+<p class="hint">El envío forma parte del costo real y se reparte entre los productos.</p>
 </div>
-
-<div class="card">
-<h2>Inversiones</h2>
-<div id="it"></div>
-</div>
-
+<div class="card"><h2>Inversiones</h2><div id="it"></div></div>
 </section>
-
 
 <section id="inventory" class="hidden">
-
 <div class="card">
-
 <h2>Agregar producto</h2>
-
 <form id="pf">
-
 <div class="grid">
-
-<label>
-Producto
-<input id="pname" required>
-</label>
-
-<label>
-Inversión
-<select id="pinv" required></select>
-</label>
-
-<label>
-Estilo / Color
-<input id="pstyle" placeholder="Ej. 12345678">
-</label>
-
-<label>
-SKU
-<input id="psku" placeholder="Ej. ABC123">
-</label>
-
-<label>
-Cantidad
-<input id="pqty" type="number" min="1" required>
-</label>
-
-<label>
-Costo unitario
-<input id="pcost" type="number" min="0" step=".01" required>
-</label>
-
-<label>
-Precio normal
-<input id="pprice" type="number" min="0" step=".01" required>
-</label>
-
-<label>
-Moneda
-<select id="pcur">
-<option>USD</option>
-<option>EUR</option>
-<option>CUP</option>
-</select>
-</label>
-
-<label class="wide">
-Código de barras
-<input id="pbar" placeholder="Escanéalo o escríbelo">
-</label>
-
+<label>Producto<input id="pname" required></label>
+<label>Inversión<select id="pinv" required></select></label>
+<label>Estilo / Color<input id="pstyle" placeholder="Ej. 12345678"></label>
+<label>SKU<input id="psku" placeholder="Ej. ABC123"></label>
+<label>Cantidad<input id="pqty" type="number" min="1" required></label>
+<label>Costo unitario<input id="pcost" type="number" min="0" step=".01" required></label>
+<label>Precio normal<input id="pprice" type="number" min="0" step=".01" required></label>
+<label>Moneda<select id="pcur"><option>USD</option><option>EUR</option><option>CUP</option></select></label>
+<label class="wide">Código de barras<input id="pbar" placeholder="Escanéalo o escríbelo"></label>
 </div>
-
 <button class="primary">Guardar producto</button>
-
 </form>
-
-<p class="hint">
-Estilo/Color, SKU y código de barras son identificadores diferentes.
-En Android podrás escanear cada uno con su botón correspondiente.
-</p>
-
+<p class="hint">Estilo/Color, SKU y código de barras son identificadores diferentes. En Android podrás escanear cada uno con su botón correspondiente.</p>
 </div>
-
-
-<div class="card">
-
-<h2>Inventario</h2>
-
-<div id="pt"></div>
-
-</div>
-
+<div class="card"><h2>Inventario</h2><div id="pt"></div></div>
 </section>
-
 
 <section id="sales" class="hidden">
-
 <div class="card">
-
 <h2>Registrar venta</h2>
-
 <form id="sf">
-
 <div class="grid">
-
-<label>
-Fecha
-<input id="sdate" type="date" required>
-</label>
-
-<label class="wide">
-Buscar por identificador
-<input id="sbar" placeholder="Escanea estilo, SKU o código de barras">
-</label>
-
-<label class="wide">
-Producto
-<select id="sprod" required></select>
-</label>
-
-<label>
-Cantidad
-<input id="sq" type="number" min="1" value="1" required>
-</label>
-
-<label>
-Precio unitario
-<input id="sprice" type="number" min="0" step=".01" required>
-</label>
-
-<label>
-Moneda
-<select id="scur">
-<option>USD</option>
-<option>EUR</option>
-<option>CUP</option>
-</select>
-</label>
-
-<label>
-Cobro
-<select id="spay">
-<option>USD efectivo</option>
-<option>EUR efectivo</option>
-<option>CUP efectivo</option>
-<option>Transferencia CUP</option>
-</select>
-</label>
-
+<label>Fecha<input id="sdate" type="date" required></label>
+<label class="wide">Buscar por identificador<input id="sbar" placeholder="Escanea estilo, SKU o código de barras"></label>
+<label class="wide">Producto<select id="sprod" required></select></label>
+<label>Cantidad<input id="sq" type="number" min="1" value="1" required></label>
+<label>Precio unitario<input id="sprice" type="number" min="0" step=".01" required></label>
+<label>Moneda<select id="scur"><option>USD</option><option>EUR</option><option>CUP</option></select></label>
+<label>Cobro<select id="spay"><option>USD efectivo</option><option>EUR efectivo</option><option>CUP efectivo</option><option>Transferencia CUP</option></select></label>
 </div>
-
 <div id="preview" class="hint"></div>
-
 <button class="primary">Registrar venta</button>
-
 </form>
-
 </div>
-
-<div class="card">
-<h2>Historial</h2>
-<div id="st"></div>
-</div>
-
+<div class="card"><h2>Historial</h2><div id="st"></div></div>
 </section>
-
 
 <section id="expenses" class="hidden">
-
 <div class="card">
-
 <h2>Registrar gasto</h2>
-
 <form id="ef">
-
 <div class="grid">
-
-<label>
-Fecha
-<input id="edate" type="date" required>
-</label>
-
-<label>
-Concepto
-<input id="edesc" required>
-</label>
-
-<label>
-Importe
-<input id="eamt" type="number" min="0" step=".01" required>
-</label>
-
-<label>
-Moneda
-<select id="ecur">
-<option>USD</option>
-<option>EUR</option>
-<option>CUP</option>
-</select>
-</label>
-
+<label>Fecha<input id="edate" type="date" required></label>
+<label>Concepto<input id="edesc" required></label>
+<label>Importe<input id="eamt" type="number" min="0" step=".01" required></label>
+<label>Moneda<select id="ecur"><option>USD</option><option>EUR</option><option>CUP</option></select></label>
 </div>
-
 <button class="primary">Guardar gasto</button>
-
 </form>
-
 </div>
-
-<div class="card">
-<h2>Gastos</h2>
-<div id="et"></div>
-</div>
-
+<div class="card"><h2>Gastos</h2><div id="et"></div></div>
 </section>
-
 
 <section id="reports" class="hidden">
-
-<div class="card">
-
-<h2>Reportes gerenciales</h2>
-
-<div id="reportsBox"></div>
-
-</div>
-
+<div class="card"><h2>Reportes gerenciales</h2><div id="reportsBox"></div></div>
 </section>
 
-
 <section id="settings" class="hidden">
-
 <div class="card">
-
+<h2>Apariencia</h2>
+<p class="hint">Elige cómo quieres ver Control Empresarial. La app recordará tu elección.</p>
+<div class="theme-choice">
+<button type="button" id="themeLight">☀️ <b>Modo claro</b><br><small>Blanco y limpio</small></button>
+<button type="button" id="themeDark">🌙 <b>Modo oscuro</b><br><small>Gris oscuro / negro</small></button>
+</div>
+</div>
+<div class="card">
 <h2>Tasas de cambio</h2>
-
 <form id="rf" class="grid">
-
-<label>
-1 USD = CUP
-<input id="rusd" type="number" step=".01">
-</label>
-
-<label>
-1 EUR = CUP
-<input id="reur" type="number" step=".01">
-</label>
-
+<label>1 USD = CUP<input id="rusd" type="number" step=".01"></label>
+<label>1 EUR = CUP<input id="reur" type="number" step=".01"></label>
 <button class="primary">Guardar tasas</button>
-
 </form>
-
 </div>
-
 <div class="card">
-
 <h2>Datos</h2>
-
 <button id="export">Exportar JSON</button>
-
-<label class="secondary">
-Importar JSON
-<input id="import" type="file" accept=".json" hidden>
-</label>
-
+<label class="secondary">Importar JSON<input id="import" type="file" accept=".json" hidden></label>
 <button id="clear" class="danger">Borrar datos</button>
-
 </div>
-
 </section>
 
 </main>
 
+<script>
+(function(){
+  function applyTheme(theme){
+    theme=theme==="dark"?"dark":"light";
+    document.documentElement.dataset.theme=theme;
+    localStorage.setItem("control_empresarial_theme",theme);
+    var light=document.getElementById("themeLight");
+    var dark=document.getElementById("themeDark");
+    if(light) light.classList.toggle("active",theme==="light");
+    if(dark) dark.classList.toggle("active",theme==="dark");
+  }
+  window.addEventListener("DOMContentLoaded",function(){
+    applyTheme(localStorage.getItem("control_empresarial_theme")||"light");
+    document.getElementById("themeLight").onclick=function(){applyTheme("light")};
+    document.getElementById("themeDark").onclick=function(){applyTheme("dark")};
+  });
+})();
+</script>
 <script src="app.js"></script>
 
 </body>
