@@ -7,16 +7,12 @@ on:
       - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Descargar código
         uses: actions/checkout@v4
-
 
       - name: Configurar Java
         uses: actions/setup-java@v4
@@ -24,28 +20,22 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
-
 
       - name: Instalar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-
       - name: Crear estructura Android
         run: |
-
           mkdir -p app/src/main/java/com/controlempresarial/app
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/assets/www
 
-
       - name: Copiar aplicación web
         run: |
-
           cp index.html app/src/main/assets/www/
           cp app.js app/src/main/assets/www/
           cp styles.css app/src/main/assets/www/
@@ -53,154 +43,94 @@ jobs:
           cp sw.js app/src/main/assets/www/
           cp icon.svg app/src/main/assets/www/
 
-
       - name: Crear settings.gradle
         run: |
-
           cat > settings.gradle <<'EOF'
-
           pluginManagement {
-
               repositories {
                   google()
                   mavenCentral()
                   gradlePluginPortal()
               }
-
           }
 
           dependencyResolutionManagement {
-
-              repositoriesMode.set(
-                  RepositoriesMode.FAIL_ON_PROJECT_REPOS
-              )
-
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
               repositories {
-
                   google()
                   mavenCentral()
-
               }
-
           }
 
           rootProject.name = "ControlEmpresarial"
-
           include(":app")
-
           EOF
-
 
       - name: Crear build.gradle
         run: |
-
           cat > build.gradle <<'EOF'
-
           plugins {
-
-              id 'com.android.application'
-                  version '8.6.1'
-                  apply false
-
+              id 'com.android.application' version '8.6.1' apply false
           }
-
           EOF
-
 
       - name: Crear gradle.properties
         run: |
-
           cat > gradle.properties <<'EOF'
-
           android.useAndroidX=true
           android.nonTransitiveRClass=true
-
           EOF
-
 
       - name: Crear app/build.gradle
         run: |
-
           cat > app/build.gradle <<'EOF'
-
           plugins {
               id 'com.android.application'
           }
 
           android {
-
               namespace 'com.controlempresarial.app'
-
               compileSdk 35
 
               defaultConfig {
-
                   applicationId 'com.controlempresarial.app'
-
                   minSdk 23
-
                   targetSdk 35
-
                   versionCode 3
-
                   versionName '1.2'
-
               }
-
           }
 
           dependencies {
-
               implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
-
           }
-
           EOF
-
 
       - name: Crear AndroidManifest.xml
         run: |
-
           cat > app/src/main/AndroidManifest.xml <<'EOF'
-
           <?xml version="1.0" encoding="utf-8"?>
 
-          <manifest
-              xmlns:android="http://schemas.android.com/apk/res/android">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
               <application
-
                   android:theme="@style/AppTheme"
-
                   android:label="Control Empresarial"
-
                   android:allowBackup="true"
-
                   android:supportsRtl="true">
 
                   <meta-data
-
-                      android:name="com.google.mlkit.vision.DEPENDENCIES"
-
+                      android:name="com.google.mlkit.vision.codescanner.DEPENDENCIES"
                       android:value="barcode_ui" />
 
-
                   <activity
-
                       android:name=".MainActivity"
-
                       android:screenOrientation="portrait"
-
                       android:exported="true">
 
                       <intent-filter>
-
-                          <action
-                              android:name="android.intent.action.MAIN" />
-
-                          <category
-                              android:name="android.intent.category.LAUNCHER" />
-
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
 
                   </activity>
@@ -208,57 +138,33 @@ jobs:
               </application>
 
           </manifest>
-
           EOF
-
 
       - name: Crear tema Android
         run: |
-
           cat > app/src/main/res/values/styles.xml <<'EOF'
-
           <?xml version="1.0" encoding="utf-8"?>
 
           <resources>
 
               <style
-
                   name="AppTheme"
-
                   parent="android:style/Theme.Material.Light.NoActionBar">
 
-                  <item name="android:fontFamily">
-                      sans
-                  </item>
-
-                  <item name="android:colorAccent">
-                      #1769ff
-                  </item>
-
-                  <item name="android:navigationBarColor">
-                      #ffffff
-                  </item>
-
-                  <item name="android:statusBarColor">
-                      #1769ff
-                  </item>
-
-                  <item name="android:windowLightStatusBar">
-                      false
-                  </item>
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:colorAccent">#1769ff</item>
+                  <item name="android:navigationBarColor">#ffffff</item>
+                  <item name="android:statusBarColor">#1769ff</item>
+                  <item name="android:windowLightStatusBar">false</item>
 
               </style>
 
           </resources>
-
           EOF
-
 
       - name: Crear MainActivity
         run: |
-
           cat > app/src/main/java/com/controlempresarial/app/MainActivity.java <<'EOF'
-
           package com.controlempresarial.app;
 
           import android.app.Activity;
@@ -271,338 +177,168 @@ jobs:
           import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
           import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 
-
           public class MainActivity extends Activity {
 
               private WebView webView;
-
               private GmsBarcodeScanner scanner;
 
-
               @Override
-              protected void onCreate(
-                      Bundle savedInstanceState) {
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
 
-                  super.onCreate(
-                      savedInstanceState);
+                  webView = new WebView(this);
+                  setContentView(webView);
 
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
 
-                  webView =
-                      new WebView(this);
+                  webView.setWebViewClient(new WebViewClient());
 
-                  setContentView(
-                      webView);
-
-
-                  WebSettings settings =
-                      webView.getSettings();
-
-                  settings.setJavaScriptEnabled(
-                      true);
-
-                  settings.setDomStorageEnabled(
-                      true);
-
-                  settings.setAllowFileAccess(
-                      true);
-
-                  settings.setAllowContentAccess(
-                      true);
-
-
-                  webView.setWebViewClient(
-                      new WebViewClient() {
-
-                          @Override
-                          public void onPageFinished(
-                                  WebView view,
-                                  String url) {
-
-                              super.onPageFinished(
-                                  view,
-                                  url);
-
-                              injectScannerButtons();
-                          }
-                      });
-
-
-                  scanner =
-                      GmsBarcodeScanning
-                          .getClient(this);
-
+                  scanner = GmsBarcodeScanning.getClient(this);
 
                   webView.addJavascriptInterface(
                       new ScannerBridge(),
-                      "AndroidScanner");
-
+                      "AndroidScanner"
+                  );
 
                   webView.loadUrl(
-                      "file:///android_asset/www/index.html");
+                      "file:///android_asset/www/index.html"
+                  );
               }
-
 
               private void injectScannerButtons() {
 
                   String js =
+                      "(function(){" +
 
-                      "(function(){"
+                      "function addButton(inputId,buttonId,label){" +
 
-                      +
+                      "if(document.getElementById(buttonId))return;" +
 
-                      "function addButton(inputId,buttonId){"
+                      "var input=document.getElementById(inputId);" +
 
-                      +
+                      "if(!input)return;" +
 
-                      "var input=document.getElementById(inputId);"
+                      "var b=document.createElement('button');" +
 
-                      +
+                      "b.id=buttonId;" +
+                      "b.type='button';" +
+                      "b.textContent='📷 '+label;" +
+                      "b.className='secondary';" +
+                      "b.style.marginTop='8px';" +
+                      "b.style.marginBottom='8px';" +
 
-                      "if(!input)return;"
+                      "b.onclick=function(){" +
+                      "AndroidScanner.scan(inputId);" +
+                      "};" +
 
-                      +
+                      "input.parentNode.appendChild(b);" +
+                      "}" +
 
-                      "if(document.getElementById(buttonId))return;"
-
-                      +
-
-                      "var b=document.createElement('button');"
-
-                      +
-
-                      "b.id=buttonId;"
-
-                      +
-
-                      "b.type='button';"
-
-                      +
-
-                      "b.textContent='📷 Escanear';"
-
-                      +
-
-                      "b.className='secondary';"
-
-                      +
-
-                      "b.style.marginTop='8px';"
-
-                      +
-
-                      "b.style.marginRight='8px';"
-
-                      +
-
-                      "b.onclick=function(){"
-
-                      +
-
-                      "AndroidScanner.scan(inputId);"
-
-                      +
-
-                      "};"
-
-                      +
-
-                      "input.parentNode.appendChild(b);"
-
-                      +
-
-                      "}"
-
-                      +
-
-                      "addButton('pstyle','androidScanPstyle');"
-
-                      +
-
-                      "addButton('psku','androidScanPsku');"
-
-                      +
-
-                      "addButton('pbar','androidScanPbar');"
-
-                      +
-
-                      "addButton('sbar','androidScanSbar');"
-
-                      +
+                      "addButton('pstyle','scanStyle','Escanear estilo/color');" +
+                      "addButton('psku','scanSku','Escanear SKU');" +
+                      "addButton('pbar','scanBarcode','Escanear código de barras');" +
+                      "addButton('sbar','scanSale','Escanear identificador');" +
 
                       "})();";
 
-
-                  webView.evaluateJavascript(
-                      js,
-                      null);
+                  webView.evaluateJavascript(js, null);
               }
-
 
               private class ScannerBridge {
 
-
                   @JavascriptInterface
-                  public void scan(
-                          String targetId) {
+                  public void scan(String targetId) {
 
                       runOnUiThread(() -> {
 
-
                           scanner.startScan()
 
-                              .addOnSuccessListener(
-                                  barcode -> {
+                              .addOnSuccessListener(barcode -> {
 
+                                  String value = barcode.getRawValue();
 
-                                      String value =
-                                          barcode.getRawValue();
+                                  if (value == null) {
+                                      return;
+                                  }
 
+                                  String safe = value
+                                      .replace("\\", "\\\\")
+                                      .replace("'", "\\'");
 
-                                      if (value == null)
-                                          return;
+                                  String target = targetId
+                                      .replace("\\", "\\\\")
+                                      .replace("'", "\\'");
 
+                                  String js =
+                                      "(function(){" +
+                                      "var i=document.getElementById('" + target + "');" +
 
-                                      String safe =
-                                          value
-                                              .replace(
-                                                  "\\",
-                                                  "\\\\")
-                                              .replace(
-                                                  "'",
-                                                  "\\'")
-                                              .replace(
-                                                  "\n",
-                                                  "\\n")
-                                              .replace(
-                                                  "\r",
-                                                  "\\r");
+                                      "if(i){" +
+                                      "i.value='" + safe + "';" +
+                                      "i.dispatchEvent(new Event('input',{bubbles:true}));" +
+                                      "i.dispatchEvent(new Event('change',{bubbles:true}));" +
 
+                                      "if('" + target + "'==='sbar' && typeof i.onchange==='function'){" +
+                                      "i.onchange();" +
+                                      "}" +
 
-                                      String target =
-                                          targetId
-                                              .replace(
-                                                  "\\",
-                                                  "\\\\")
-                                              .replace(
-                                                  "'",
-                                                  "\\'");
+                                      "}" +
+                                      "})();";
 
+                                  webView.evaluateJavascript(js, null);
 
-                                      String js =
+                              })
 
-                                          "(function(){"
+                              .addOnFailureListener(e -> {
 
-                                          +
+                                  webView.evaluateJavascript(
+                                      "alert('No se pudo leer el código. Inténtalo de nuevo.');",
+                                      null
+                                  );
 
-                                          "var i=document.getElementById('"
-                                          +
-                                          target
-                                          +
-                                          "');"
-
-                                          +
-
-                                          "if(i){"
-
-                                          +
-
-                                          "i.value='"
-                                          +
-                                          safe
-                                          +
-                                          "';"
-
-                                          +
-
-                                          "i.dispatchEvent(new Event('input',{bubbles:true}));"
-
-                                          +
-
-                                          "i.dispatchEvent(new Event('change',{bubbles:true}));"
-
-                                          +
-
-                                          "i.focus();"
-
-                                          +
-
-                                          "}"
-
-                                          +
-
-                                          "})();";
-
-
-                                      webView.evaluateJavascript(
-                                          js,
-                                          null);
-
-                                  })
-
-
-                              .addOnFailureListener(
-                                  e -> {
-
-                                      webView.evaluateJavascript(
-
-                                          "alert('No se pudo leer el código. Inténtalo de nuevo.');",
-
-                                          null);
-
-                                  });
+                              });
 
                       });
                   }
               }
 
-
               @Override
               protected void onResume() {
-
                   super.onResume();
 
                   if (webView != null) {
-
                       webView.postDelayed(
                           this::injectScannerButtons,
-                          300);
+                          700
+                      );
                   }
               }
-
 
               @Override
               public void onBackPressed() {
 
-                  if (
-                      webView != null &&
-                      webView.canGoBack()
-                  ) {
-
+                  if (webView.canGoBack()) {
                       webView.goBack();
-
                   } else {
-
                       super.onBackPressed();
                   }
               }
-
           }
-
           EOF
-
 
       - name: Compilar APK
         run: |
-
           gradle assembleDebug
-
 
       - name: Guardar APK
         uses: actions/upload-artifact@v4
-
         with:
-
           name: Control-Empresarial-APK-v1.2
-
           path: app/build/outputs/apk/debug/app-debug.apk
+
+
+
