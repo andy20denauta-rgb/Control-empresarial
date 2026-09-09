@@ -28,11 +28,10 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Crear proyecto Android
+      - name: Crear estructura Android
         run: |
           mkdir -p app/src/main/java/com/controlempresarial/app
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/assets/www
 
       - name: Copiar aplicación web
@@ -44,7 +43,7 @@ jobs:
           cp sw.js app/src/main/assets/www/
           cp icon.svg app/src/main/assets/www/
 
-      - name: Crear configuración Gradle
+      - name: Crear settings.gradle
         run: |
           cat > settings.gradle <<'EOF'
           pluginManagement {
@@ -67,17 +66,23 @@ jobs:
           include(":app")
           EOF
 
+      - name: Crear build.gradle
+        run: |
           cat > build.gradle <<'EOF'
           plugins {
               id 'com.android.application' version '8.6.1' apply false
           }
           EOF
 
+      - name: Crear gradle.properties
+        run: |
           cat > gradle.properties <<'EOF'
           android.useAndroidX=true
           android.nonTransitiveRClass=true
           EOF
 
+      - name: Crear app/build.gradle
+        run: |
           cat > app/build.gradle <<'EOF'
           plugins {
               id 'com.android.application'
@@ -91,16 +96,21 @@ jobs:
                   applicationId 'com.controlempresarial.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 1
-                  versionName '1.0'
+                  versionCode 2
+                  versionName '1.1'
               }
+          }
+
+          dependencies {
+              implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
           }
           EOF
 
-      - name: Crear AndroidManifest
+      - name: Crear AndroidManifest.xml
         run: |
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
+
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
               <application
@@ -108,6 +118,10 @@ jobs:
                   android:label="Control Empresarial"
                   android:allowBackup="true"
                   android:supportsRtl="true">
+
+                  <meta-data
+                      android:name="com.google.mlkit.vision.DEPENDENCIES"
+                      android:value="barcode_ui" />
 
                   <activity
                       android:name=".MainActivity"
@@ -126,18 +140,23 @@ jobs:
           </manifest>
           EOF
 
-      - name: Crear tema
+      - name: Crear tema Android
         run: |
           cat > app/src/main/res/values/styles.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
+
           <resources>
 
-              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+              <style
+                  name="AppTheme"
+                  parent="android:style/Theme.Material.Light.NoActionBar">
+
                   <item name="android:fontFamily">sans</item>
                   <item name="android:colorAccent">#1769ff</item>
                   <item name="android:navigationBarColor">#ffffff</item>
                   <item name="android:statusBarColor">#1769ff</item>
                   <item name="android:windowLightStatusBar">false</item>
+
               </style>
 
           </resources>
@@ -150,13 +169,18 @@ jobs:
 
           import android.app.Activity;
           import android.os.Bundle;
+          import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
 
+          import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+          import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+
           public class MainActivity extends Activity {
 
               private WebView webView;
+              private GmsBarcodeScanner scanner;
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
@@ -174,11 +198,114 @@ jobs:
 
                   webView.setWebViewClient(new WebViewClient());
 
-                  webView.loadUrl("file:///android_asset/www/index.html");
+                  scanner = GmsBarcodeScanning.getClient(this);
+
+                  webView.addJavascriptInterface(
+                      new ScannerBridge(),
+                      "AndroidScanner"
+                  );
+
+                  webView.loadUrl(
+                      "file:///android_asset/www/index.html"
+                  );
+              }
+
+              private void injectScannerButton() {
+
+                  String js =
+                      "(function(){" +
+                      "if(document.getElementById('androidScanBarcode'))return;" +
+                      "var input=document.getElementById('pbar');" +
+                      "if(!input)return;" +
+
+                      "var b=document.createElement('button');" +
+                      "b.id='androidScanBarcode';" +
+                      "b.type='button';" +
+                      "b.textContent='📷 Escanear';" +
+                      "b.className='secondary';" +
+                      "b.style.marginTop='8px';" +
+
+                      "b.onclick=function(){" +
+                      "AndroidScanner.scan();" +
+                      "};" +
+
+                      "input.parentNode.appendChild(b);" +
+                      "})();";
+
+                  webView.evaluateJavascript(js, null);
+              }
+
+              private class ScannerBridge {
+
+                  @JavascriptInterface
+                  public void scan() {
+
+                      runOnUiThread(() -> {
+
+                          scanner.startScan()
+
+                              .addOnSuccessListener(barcode -> {
+
+                                  String value = barcode.getRawValue();
+
+                                  if (value != null) {
+
+                                      String safe = value
+                                          .replace("\\", "\\\\")
+                                          .replace("'", "\\'");
+
+                                      webView.evaluateJavascript(
+
+                                          "(function(){" +
+
+                                          "var i=document.getElementById('pbar');" +
+
+                                          "if(i){" +
+
+                                          "i.value='" + safe + "';" +
+
+                                          "i.dispatchEvent(new Event('input',{bubbles:true}));" +
+
+                                          "i.dispatchEvent(new Event('change',{bubbles:true}));" +
+
+                                          "}" +
+
+                                          "})();",
+
+                                          null
+                                      );
+                                  }
+
+                              })
+
+                              .addOnFailureListener(e -> {
+
+                                  webView.evaluateJavascript(
+                                      "alert('No se pudo leer el código de barras. Inténtalo de nuevo.');",
+                                      null
+                                  );
+
+                              });
+
+                      });
+                  }
+              }
+
+              @Override
+              protected void onResume() {
+                  super.onResume();
+
+                  if (webView != null) {
+                      webView.postDelayed(
+                          this::injectScannerButton,
+                          500
+                      );
+                  }
               }
 
               @Override
               public void onBackPressed() {
+
                   if (webView.canGoBack()) {
                       webView.goBack();
                   } else {
@@ -195,5 +322,5 @@ jobs:
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: Control-Empresarial-APK
+          name: Control-Empresarial-APK-v1.1
           path: app/build/outputs/apk/debug/app-debug.apk
