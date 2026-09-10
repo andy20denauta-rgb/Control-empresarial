@@ -60,6 +60,7 @@
 <div class="more" id="more"><div class="sheet"><div class="handle"></div><h3>Más</h3><button onclick="closeMore();nav('expenses')">− <span>Gastos</span>›</button><button onclick="closeMore();nav('reports')">◔ <span>Reportes</span>›</button><button onclick="closeMore();nav('settings')">⚙ <span>Ajustes</span>›</button></div></div>
 <div class="bottom"><button data-mobile-p="dashboard" class="active"><i>⌂</i><span>Inicio</span></button><button data-mobile-p="investments"><i>◈</i><span>Inversiones</span></button><button data-mobile-p="inventory"><i>▣</i><span>Inventario</span></button><button data-mobile-p="sales"><i>↗</i><span>Ventas</span></button><button id="moreBtn"><i>•••</i><span>Más</span></button></div>
 <script src="app.js"></script>
+<script src="fixes.js"></script>
 <script>
 (function(){
 window.togglePanel=function(id){var e=document.getElementById(id);if(!e)return;e.classList.toggle('hidden');if(!e.classList.contains('hidden')){var i=e.querySelector('input');if(i)setTimeout(function(){i.focus()},60)}};
