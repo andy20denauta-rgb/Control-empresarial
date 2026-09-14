@@ -72,8 +72,8 @@ jobs:
                   applicationId 'com.controlempresarial.app'
                   minSdk 23
                   targetSdk 35
-                  versionCode 5
-                  versionName '1.4'
+                  versionCode ${{ github.run_number }}
+                  versionName '1.5'
               }
           }
           dependencies { implementation 'com.google.android.gms:play-services-code-scanner:16.1.0' }
@@ -118,10 +118,10 @@ jobs:
           import android.view.View;
           import android.view.WindowManager;
           import android.webkit.JavascriptInterface;
+          import android.webkit.WebChromeClient;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
-          import android.webkit.WebChromeClient;
           import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
           import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 
@@ -149,7 +149,12 @@ jobs:
                   settings.setDomStorageEnabled(true);
                   settings.setAllowFileAccess(true);
                   settings.setAllowContentAccess(true);
-                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebViewClient(new WebViewClient(){
+                      @Override public void onPageFinished(WebView view, String url){
+                          super.onPageFinished(view, url);
+                          injectScannerButtons();
+                      }
+                  });
                   webView.setWebChromeClient(new WebChromeClient());
                   scanner=GmsBarcodeScanning.getClient(this);
                   webView.addJavascriptInterface(new ScannerBridge(),"AndroidScanner");
@@ -157,7 +162,7 @@ jobs:
               }
 
               private void injectScannerButtons(){
-                  String js="(function(){function addButton(inputId,buttonId,label){if(document.getElementById(buttonId))return;var input=document.getElementById(inputId);if(!input)return;var b=document.createElement('button');b.id=buttonId;b.type='button';b.textContent='📷 '+label;b.className='secondary';b.style.marginTop='8px';b.style.marginBottom='8px';b.onclick=function(){AndroidScanner.scan(inputId)};input.parentNode.appendChild(b)}addButton('pstyle','scanStyle','Escanear estilo/color');addButton('psku','scanSku','Escanear SKU');addButton('pbar','scanBarcode','Escanear código de barras');addButton('sbar','scanSale','Escanear identificador')})();";
+                  String js="(function(){function addButton(inputId,buttonId,label){if(document.getElementById(buttonId))return;var input=document.getElementById(inputId);if(!input)return;var b=document.createElement('button');b.id=buttonId;b.type='button';b.textContent='\uD83D\uDCF7 '+label;b.className='secondary';b.style.marginTop='8px';b.style.marginBottom='8px';b.onclick=function(){AndroidScanner.scan(inputId)};input.parentNode.appendChild(b)}addButton('pstyle','scanStyle','Escanear estilo/color');addButton('psku','scanSku','Escanear SKU');addButton('pbar','scanBarcode','Escanear código de barras');addButton('sbar','scanSale','Escanear identificador')})();";
                   webView.evaluateJavascript(js,null);
               }
 
@@ -182,5 +187,5 @@ jobs:
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: Control-Empresarial-APK-v1.4
+          name: Control-Empresarial-APK-v1.5
           path: app/build/outputs/apk/debug/app-debug.apk
