@@ -16,6 +16,18 @@
     .row-action.danger-action{color:var(--bad)}
     .sale-status{margin-top:8px;font-size:12px;font-weight:700}
     .sale-status.ok{color:var(--good)}.sale-status.error{color:var(--bad)}
+    .ce-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;overflow:auto}
+    .ce-dialog{background:var(--card);border-radius:19px;padding:22px;max-width:420px;width:100%;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+    .ce-dialog h3{margin:0 0 4px;font-size:16px}
+    .ce-dialog p{margin:0 0 14px;color:var(--muted);font-size:11px}
+    .ce-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .ce-grid label{display:block;color:var(--muted);font-size:10px;font-weight:750}
+    .ce-grid input,.ce-grid select{width:100%;display:block;margin-top:6px;border:1px solid var(--line);background:var(--card2);color:var(--ink);border-radius:11px;padding:11px;outline:0;font:inherit}
+    .ce-actions{display:flex;gap:10px;margin-top:18px}
+    .ce-actions button{flex:1;border:0;border-radius:12px;padding:12px;font-weight:800;cursor:pointer}
+    .ce-cancel{background:var(--card2);color:var(--ink)}
+    .ce-primary{background:var(--blue);color:#fff}
+    .ce-danger{background:var(--bad);color:#fff}
   `;
   document.head.appendChild(css);
 
